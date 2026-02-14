@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ================================================================== -->
+    <!--  Extend Purchase Order / RFQ Form View with Multi-Vendor Features  -->
+    <!-- ================================================================== -->
+    <record id="purchase_order_form_inherit_multi_vendor" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.multi.vendor</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add "Send to All Vendors" button in header -->
+            <xpath expr="//header/button[@name='action_rfq_send']" position="before">
+                <button name="action_send_to_all_vendors"
+                        type="object"
+                        string="Send RFQ to All Vendors"
+                        class="oe_highlight"
+                        invisible="state != 'draft' or vendor_count == 0"
+                        data-hotkey="v"/>
+            </xpath>
+
+            <!-- Add stat buttons for vendor count and bid count -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_rfq_vendors"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-users"
+                        invisible="vendor_count == 0">
+                    <field name="vendor_count" widget="statinfo" string="RFQ Vendors"/>
+                </button>
+                <button name="action_view_rfq_bids"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-gavel"
+                        invisible="bid_count == 0">
+                    <field name="bid_count" widget="statinfo" string="Bids"/>
+                </button>
+            </xpath>
+
+            <!-- Add Multi-Vendor RFQ and Bids notebook pages -->
+            <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+
+                <!-- Tab: Multi-Vendor RFQ Vendors -->
+                <page string="RFQ Vendors" name="rfq_vendors">
+                    <group string="Assign vendors to this RFQ for multi-vendor bidding">
+                        <field name="rfq_vendor_ids" nolabel="1" colspan="2"
+                               context="{'default_rfq_id': id}">
+                            <list editable="bottom" create="1" delete="1">
+                                <field name="vendor_id"
+                                       domain="[('supplier_rank', '&gt;', 0)]"
+                                       required="1"
+                                       placeholder="Select a vendor..."/>
+                                <field name="status"
+                                       decoration-info="status == 'draft'"
+                                       decoration-warning="status == 'sent'"
+                                       decoration-success="status in ('bid_received', 'awarded')"
+                                       decoration-danger="status == 'rejected'"
+                                       widget="badge"
+                                       readonly="1"/>
+                                <field name="sent_date" readonly="1"/>
+                                <field name="response_date" readonly="1"/>
+                                <field name="bid_count" string="Bids"/>
+                                <field name="notes"/>
+                                <button name="action_mark_sent"
+                                        type="object"
+                                        string="Mark Sent"
+                                        icon="fa-check"
+                                        invisible="status != 'draft'"/>
+                                <button name="action_send_rfq"
+                                        type="object"
+                                        string="Send Email"
+                                        icon="fa-envelope"
+                                        invisible="status != 'draft'"/>
+                                <button name="action_create_bid"
+                                        type="object"
+                                        string="Record Bid"
+                                        icon="fa-plus-circle"
+                                        invisible="status not in ('sent', 'bid_received')"/>
+                                <button name="action_view_bids"
+                                        type="object"
+                                        string="View Bids"
+                                        icon="fa-eye"
+                                        invisible="bid_count == 0"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+
+                <!-- Tab: Received Bids -->
+                <page string="Received Bids" name="rfq_bids"
+                      invisible="bid_count == 0">
+                    <group>
+                        <group>
+                            <field name="awarded_bid_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <button name="action_compare_bids"
+                                    type="object"
+                                    string="Compare Bids"
+                                    class="btn-secondary"
+                                    icon="fa-balance-scale"
+                                    invisible="bid_count &lt; 2"/>
+                        </group>
+                    </group>
+                    <field name="rfq_bid_ids" nolabel="1" readonly="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="vendor_id"/>
+                            <field name="bid_date"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="amount_untaxed" widget="monetary" optional="show"/>
+                            <field name="amount_total" widget="monetary" decoration-bf="1"/>
+                            <field name="state"
+                                   decoration-info="state == 'draft'"
+                                   decoration-warning="state == 'under_review'"
+                                   decoration-success="state == 'awarded'"
+                                   decoration-danger="state == 'rejected'"
+                                   widget="badge"/>
+                            <button name="action_award"
+                                    type="object"
+                                    string="Award"
+                                    icon="fa-trophy"
+                                    class="text-success"
+                                    invisible="state not in ('submitted', 'under_review')"/>
+                            <button name="action_reject"
+                                    type="object"
+                                    string="Reject"
+                                    icon="fa-times"
+                                    class="text-danger"
+                                    invisible="state not in ('submitted', 'under_review')"/>
+                        </list>
+                    </field>
+                </page>
+
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

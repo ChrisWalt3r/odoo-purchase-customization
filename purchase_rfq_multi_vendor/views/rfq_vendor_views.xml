@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== -->
+    <!--  RFQ Vendor Form View -->
+    <!-- ===================== -->
+    <record id="view_purchase_rfq_vendor_form" model="ir.ui.view">
+        <field name="name">purchase.rfq.vendor.form</field>
+        <field name="model">purchase.rfq.vendor</field>
+        <field name="arch" type="xml">
+            <form string="RFQ Vendor">
+                <header>
+                    <button name="action_send_rfq"
+                            type="object"
+                            string="Send RFQ Email"
+                            class="oe_highlight"
+                            invisible="status != 'draft'"/>
+                    <button name="action_mark_sent"
+                            type="object"
+                            string="Mark as Sent"
+                            invisible="status != 'draft'"/>
+                    <button name="action_create_bid"
+                            type="object"
+                            string="Record Bid"
+                            class="oe_highlight"
+                            invisible="status not in ('sent', 'bid_received')"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="draft,sent,bid_received,awarded"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bids"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-gavel"
+                                invisible="bid_count == 0">
+                            <field name="bid_count" widget="statinfo" string="Bids"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="rfq_id" readonly="1"/>
+                            <field name="vendor_id" readonly="status != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="sent_date" readonly="1"/>
+                            <field name="response_date" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Notes about this vendor assignment..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== -->
+    <!--  RFQ Vendor List View -->
+    <!-- ===================== -->
+    <record id="view_purchase_rfq_vendor_list" model="ir.ui.view">
+        <field name="name">purchase.rfq.vendor.list</field>
+        <field name="model">purchase.rfq.vendor</field>
+        <field name="arch" type="xml">
+            <list string="RFQ Vendors" editable="bottom">
+                <field name="rfq_id"/>
+                <field name="vendor_id" domain="[('supplier_rank', '&gt;', 0)]"/>
+                <field name="status"
+                       decoration-info="status == 'draft'"
+                       decoration-warning="status == 'sent'"
+                       decoration-success="status in ('bid_received', 'awarded')"
+                       decoration-danger="status == 'rejected'"
+                       widget="badge"
+                       readonly="1"/>
+                <field name="sent_date" readonly="1"/>
+                <field name="response_date" readonly="1"/>
+                <field name="bid_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ======================== -->
+    <!--  RFQ Vendor Search View  -->
+    <!-- ======================== -->
+    <record id="view_purchase_rfq_vendor_search" model="ir.ui.view">
+        <field name="name">purchase.rfq.vendor.search</field>
+        <field name="model">purchase.rfq.vendor</field>
+        <field name="arch" type="xml">
+            <search string="Search RFQ Vendors">
+                <field name="rfq_id"/>
+                <field name="vendor_id"/>
+                <filter name="draft" string="Draft" domain="[('status', '=', 'draft')]"/>
+                <filter name="sent" string="Sent" domain="[('status', '=', 'sent')]"/>
+                <filter name="bid_received" string="Bid Received" domain="[('status', '=', 'bid_received')]"/>
+                <filter name="awarded" string="Awarded" domain="[('status', '=', 'awarded')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="RFQ" name="group_rfq" context="{'group_by': 'rfq_id'}"/>
+                    <filter string="Vendor" name="group_vendor" context="{'group_by': 'vendor_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== -->
+    <!--  RFQ Vendor Actions   -->
+    <!-- ===================== -->
+    <record id="action_purchase_rfq_vendor" model="ir.actions.act_window">
+        <field name="name">RFQ Vendors</field>
+        <field name="res_model">purchase.rfq.vendor</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_purchase_rfq_vendor_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No RFQ vendor assignments yet.
+            </p>
+            <p>
+                Assign vendors to RFQs from the RFQ form's "RFQ Vendors" tab.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under Purchase > Orders -->
+    <menuitem id="menu_purchase_rfq_vendor"
+              name="RFQ Vendors"
+              parent="purchase.menu_procurement_management"
+              action="action_purchase_rfq_vendor"
+              sequence="12"/>
+
+</odoo>

@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_purchase_rfq_vendor_user,purchase.rfq.vendor user,model_purchase_rfq_vendor,purchase.group_purchase_user,1,1,1,0
+access_purchase_rfq_vendor_manager,purchase.rfq.vendor manager,model_purchase_rfq_vendor,purchase.group_purchase_manager,1,1,1,1
+access_purchase_rfq_bid_user,purchase.rfq.bid user,model_purchase_rfq_bid,purchase.group_purchase_user,1,1,1,0
+access_purchase_rfq_bid_manager,purchase.rfq.bid manager,model_purchase_rfq_bid,purchase.group_purchase_manager,1,1,1,1
+access_purchase_rfq_bid_line_user,purchase.rfq.bid.line user,model_purchase_rfq_bid_line,purchase.group_purchase_user,1,1,1,0
+access_purchase_rfq_bid_line_manager,purchase.rfq.bid.line manager,model_purchase_rfq_bid_line,purchase.group_purchase_manager,1,1,1,1
+access_select_winner_wizard_user,select.winner.wizard user,model_purchase_rfq_select_winner_wizard,purchase.group_purchase_user,1,1,1,0
+access_select_winner_wizard_manager,select.winner.wizard manager,model_purchase_rfq_select_winner_wizard,purchase.group_purchase_manager,1,1,1,1

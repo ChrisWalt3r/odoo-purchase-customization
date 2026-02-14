@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== -->
+    <!--  RFQ Bid Form View    -->
+    <!-- ===================== -->
+    <record id="view_purchase_rfq_bid_form" model="ir.ui.view">
+        <field name="name">purchase.rfq.bid.form</field>
+        <field name="model">purchase.rfq.bid</field>
+        <field name="arch" type="xml">
+            <form string="RFQ Bid">
+                <header>
+                    <button name="action_submit"
+                            type="object"
+                            string="Submit Bid"
+                            class="oe_highlight"
+                            invisible="state != 'draft'"/>
+                    <button name="action_under_review"
+                            type="object"
+                            string="Under Review"
+                            invisible="state != 'submitted'"/>
+                    <button name="action_award"
+                            type="object"
+                            string="Award Bid"
+                            class="btn-success"
+                            icon="fa-trophy"
+                            invisible="state not in ('submitted', 'under_review')"/>
+                    <button name="action_reject"
+                            type="object"
+                            string="Reject"
+                            invisible="state not in ('submitted', 'under_review')"/>
+                    <button name="action_reset_draft"
+                            type="object"
+                            string="Reset to Draft"
+                            invisible="state not in ('rejected',)"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,awarded"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="rfq_vendor_id"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="rfq_id" readonly="1"/>
+                            <field name="vendor_id" readonly="1"/>
+                            <field name="bid_date"/>
+                            <field name="validity_date"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="amount_untaxed" widget="monetary"/>
+                            <field name="amount_tax" widget="monetary"/>
+                            <field name="amount_total" widget="monetary"
+                                   class="oe_subtotal_footer_separator"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Bid Lines" name="bid_lines">
+                            <field name="bid_line_ids"
+                                   readonly="state not in ('draft',)">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="rfq_line_id"
+                                           domain="[('order_id', '=', parent.rfq_id), ('display_type', '=', False)]"
+                                           required="1"
+                                           readonly="1"/>
+                                    <field name="product_id" readonly="1"/>
+                                    <field name="product_description" readonly="1" optional="hide"/>
+                                    <field name="product_qty" readonly="1"/>
+                                    <field name="product_uom" readonly="1"/>
+                                    <field name="price_unit" required="1"/>
+                                    <field name="discount" optional="show"/>
+                                    <field name="taxes_id" widget="many2many_tags"
+                                           domain="[('type_tax_use', '=', 'purchase')]"
+                                           options="{'no_create': True}"
+                                           optional="show"/>
+                                    <field name="delivery_lead_time" optional="show"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="price_subtotal" widget="monetary"/>
+                                    <field name="price_total" widget="monetary" optional="hide"/>
+                                </list>
+                            </field>
+
+                            <group class="oe_subtotal_footer">
+                                <field name="amount_untaxed" widget="monetary"/>
+                                <field name="amount_tax" widget="monetary"/>
+                                <div class="oe_subtotal_footer_separator">
+                                    <field name="amount_total" widget="monetary"/>
+                                </div>
+                            </group>
+                        </page>
+
+                        <page string="Terms &amp; Notes" name="terms_notes">
+                            <group>
+                                <field name="delivery_terms"
+                                       placeholder="Delivery terms offered by the vendor..."/>
+                                <field name="payment_terms"
+                                       placeholder="Payment terms offered by the vendor..."/>
+                            </group>
+                            <separator string="Vendor Notes"/>
+                            <field name="notes"
+                                   placeholder="Additional notes from the vendor..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- ===================== -->
+    <!--  RFQ Bid List View    -->
+    <!-- ===================== -->
+    <record id="view_purchase_rfq_bid_list" model="ir.ui.view">
+        <field name="name">purchase.rfq.bid.list</field>
+        <field name="model">purchase.rfq.bid</field>
+        <field name="arch" type="xml">
+            <list string="RFQ Bids"
+                  decoration-success="state == 'awarded'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-muted="state == 'draft'">
+                <field name="name" decoration-bf="1"/>
+                <field name="rfq_id"/>
+                <field name="vendor_id"/>
+                <field name="bid_date"/>
+                <field name="validity_date" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount_untaxed" widget="monetary" optional="show"/>
+                <field name="amount_total" widget="monetary" decoration-bf="1"/>
+                <field name="state"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'under_review'"
+                       decoration-success="state == 'awarded'"
+                       decoration-danger="state == 'rejected'"
+                       widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ======================= -->
+    <!--  RFQ Bid Search View    -->
+    <!-- ======================= -->
+    <record id="view_purchase_rfq_bid_search" model="ir.ui.view">
+        <field name="name">purchase.rfq.bid.search</field>
+        <field name="model">purchase.rfq.bid</field>
+        <field name="arch" type="xml">
+            <search string="Search Bids">
+                <field name="name"/>
+                <field name="rfq_id"/>
+                <field name="vendor_id"/>
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="under_review" string="Under Review" domain="[('state', '=', 'under_review')]"/>
+                <filter name="awarded" string="Awarded" domain="[('state', '=', 'awarded')]"/>
+                <filter name="rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="RFQ" name="group_rfq" context="{'group_by': 'rfq_id'}"/>
+                    <filter string="Vendor" name="group_vendor" context="{'group_by': 'vendor_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Bid Date" name="group_date" context="{'group_by': 'bid_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ===================== -->
+    <!--  RFQ Bid Action       -->
+    <!-- ===================== -->
+    <record id="action_purchase_rfq_bid" model="ir.actions.act_window">
+        <field name="name">RFQ Bids</field>
+        <field name="res_model">purchase.rfq.bid</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_purchase_rfq_bid_search"/>
+        <field name="context">{'search_default_submitted': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No bids received yet.
+            </p>
+            <p>
+                Bids are created when vendors respond to your RFQs.
+                Record bids from the RFQ form's "RFQ Vendors" tab.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu item under Purchase > Orders -->
+    <menuitem id="menu_purchase_rfq_bid"
+              name="RFQ Bids"
+              parent="purchase.menu_procurement_management"
+              action="action_purchase_rfq_bid"
+              sequence="13"/>
+
+</odoo>

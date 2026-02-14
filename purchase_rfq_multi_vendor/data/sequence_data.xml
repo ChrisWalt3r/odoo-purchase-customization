@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Sequence for Bid References -->
+    <record id="seq_purchase_rfq_bid" model="ir.sequence">
+        <field name="name">RFQ Bid Sequence</field>
+        <field name="code">purchase.rfq.bid</field>
+        <field name="prefix">BID/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+
+</odoo>
