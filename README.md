@@ -174,16 +174,6 @@ Employee                    Procurement Officer              Vendor(s)
 - **Dependencies**: `purchase`, `mail`, `hr` (for employee integration)
 - **Design Patterns**: Model inheritance (`_inherit`), One2Many relationships, State machine workflows, Transient wizard models, Mail thread integration
 
-## Screenshots
-
-*(Add screenshots of your working implementation here)*
-
-1. Purchase Request Form
-2. Multi-Vendor RFQ Assignment
-3. Bid Comparison View
-4. Award Wizard
-5. Auto-generated Purchase Order
-
 ## License
 
 LGPL-3.0 – Same as Odoo Community Edition
